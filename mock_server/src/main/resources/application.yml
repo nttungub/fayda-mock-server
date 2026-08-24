@@ -1,0 +1,18 @@
+server:
+  port: 7088
+
+spring:
+  application:
+    name: fayda-mock-esignet
+
+mock:
+  store:
+    # Registered clients and mock identities are persisted here and reloaded on
+    # restart. Resolved relative to the JVM working directory (the repo root
+    # when running via `mvn spring-boot:run`).
+    file: data/mock-store.json
+
+# NOTE: the issuer/base URL (http://localhost:7088) is hardcoded as a constant in
+# DiscoveryController, TokenController, and UserInfoController rather than read from
+# this file. If you change server.port, update the ISSUER constant in all three of
+# those classes to match.

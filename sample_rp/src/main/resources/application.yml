@@ -1,0 +1,41 @@
+server:
+  port: 3000   # matches the Django REDIRECT_URI (http://localhost:3000/...)
+
+spring:
+  config:
+    import: "optional:file:.env[.properties]"
+
+  application:
+    name: fayda-bank
+
+  security:
+    oauth2:
+      client:
+        registration:
+          fayda:
+            # Loaded from the CLIENT_ID entry in .env
+            client-id: ${CLIENT_ID:oidc_client_id}
+            client-authentication-method: private_key_jwt
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:3000/callback
+            scope:
+              - openid
+              - profile
+              - email
+        provider:
+          fayda:
+            # Each endpoint comes straight from its own .env entry
+            authorization-uri: ${FAYDA_AUTHORIZATION_URI:http://localhost:3000/fayda}
+            token-uri: ${FAYDA_TOKEN_URI:http://locahost:3000/oidc/token}
+            user-info-uri: ${FAYDA_USER_INFO_URI:http://locahost:3000/oidc/userinfo}
+            jwk-set-uri: ${FAYDA_JWK_SET_URI}
+            user-name-attribute: sub
+
+# PRIVATE_KEY (the base64-encoded JWK) is read directly from .env by
+# OAuthClientConfig via @Value("${PRIVATE_KEY}") to sign the private_key_jwt
+# client assertion — no separate key file needed.
+
+logging:
+  level:
+    org.springframework.security.oauth2.client: TRACE
+    org.springframework.security: DEBUG   # handy while wiring up OIDC

@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fayda Mock eSignet - Console</title>
+<style>
+  :root {
+    --green: #0b6b3a;
+    --green-dark: #094e2a;
+    --bg: #f5f6f4;
+    --card: #ffffff;
+    --border: #e0e0dc;
+    --text: #222;
+    --muted: #6b6b6b;
+    --danger: #b3261e;
+    --danger-bg: #fdecea;
+    --mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding-bottom: 60px;
+  }
+  header {
+    background: var(--green);
+    color: #fff;
+    padding: 18px 24px;
+  }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
+  nav {
+    display: flex;
+    gap: 4px;
+    background: var(--green-dark);
+    padding: 0 20px;
+    overflow-x: auto;
+  }
+  nav button {
+    background: transparent;
+    border: none;
+    color: #d8ead9;
+    padding: 12px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  nav button.active {
+    color: #fff;
+    border-bottom-color: #fff;
+    font-weight: 600;
+  }
+  main {
+    max-width: 1080px;
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+  .tab { display: none; }
+  .tab.active { display: block; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card h2 { margin-top: 0; font-size: 16px; }
+  .card h3 { font-size: 14px; margin: 18px 0 6px; color: var(--muted); }
+  label { display: block; font-size: 13px; margin-top: 12px; margin-bottom: 4px; color: #444; }
+  input[type=text], input[type=password], input[type=date], textarea, select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  textarea { font-family: var(--mono); font-size: 12px; resize: vertical; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  button.primary {
+    margin-top: 16px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button.primary:hover { background: var(--green-dark); }
+  button.secondary {
+    background: #fff;
+    color: var(--green);
+    border: 1px solid var(--green);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  button.link {
+    background: none;
+    border: none;
+    color: var(--green);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: 13px;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  code, .mono { font-family: var(--mono); font-size: 12px; word-break: break-all; }
+  pre {
+    background: #f0f1ee;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .msg { margin-top: 14px; padding: 10px 12px; border-radius: 6px; font-size: 13px; }
+  .msg.ok { background: #e6f4ea; color: var(--green-dark); }
+  .msg.err { background: var(--danger-bg); color: var(--danger); }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #eee;
+    color: #555;
+  }
+  .badge.yes { background: #e6f4ea; color: var(--green-dark); }
+  .danger-zone {
+    margin-top: 14px;
+    border: 1px dashed var(--danger);
+    background: var(--danger-bg);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .danger-zone summary { cursor: pointer; font-size: 13px; color: var(--danger); font-weight: 600; }
+  .steps { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .step {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 8px 6px;
+    border-radius: 6px;
+    background: #eee;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .step.active { background: var(--green); color: #fff; font-weight: 600; }
+  .step.done { background: #e6f4ea; color: var(--green-dark); }
+  .checks { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
+  .checks label { display: flex; align-items: center; gap: 6px; margin-top: 0; font-size: 13px; }
+  .checks input { width: auto; }
+  .empty { color: var(--muted); font-size: 13px; font-style: italic; }
+  a { color: var(--green); }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>&#127466;&#127481; Fayda Mock eSignet &mdash; Console</h1>
+  <p>Local test-only stand-in for the VeriFayda 2.0 / eSignet OIDC flow. No real identity data. All state lives in this server's memory and resets on restart.</p>
+</header>
+
+<nav>
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="clients">Clients</button>
+  <button data-tab="identities">Identities</button>
+  <button data-tab="flow">Try the Flow</button>
+</nav>
+
+<main>
+
+  <section id="tab-overview" class="tab active">
+    <div class="card">
+      <h2>What this is</h2>
+      <p>This console gives you a clickable front end for the endpoints documented in <code>README.md</code>. It does not replace the OIDC endpoints themselves &mdash; it just calls them from the browser instead of <code>curl</code>.</p>
+      <table>
+        <tr><th>Endpoint</th><th>Purpose</th></tr>
+        <tr><td><code>GET /.well-known/openid-configuration</code></td><td>Discovery document &mdash; <a href="/.well-known/openid-configuration" target="_blank">open</a></td></tr>
+        <tr><td><code>GET /jwks.json</code></td><td>This server's public signing key &mdash; <a href="/jwks.json" target="_blank">open</a></td></tr>
+        <tr><td><code>GET /authorize</code></td><td>Login form (built by the server)</td></tr>
+        <tr><td><code>POST /oauth/v2/token</code></td><td>Code &rarr; tokens</td></tr>
+        <tr><td><code>GET /oidc/userinfo</code></td><td>Signed JWT of claims</td></tr>
+        <tr><td><code>/admin/clients</code>, <code>/admin/identities</code></td><td>Manage test data &mdash; see the tabs above</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Suggested order</h2>
+      <ol>
+        <li>Register a relying party in <b>Clients</b> (or let this console generate a throwaway signing key for you).</li>
+        <li>Check or create a fake citizen in <b>Identities</b>.</li>
+        <li>Run the whole authorize &rarr; token &rarr; userinfo flow end to end in <b>Try the Flow</b>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="tab-clients" class="tab">
+    <div class="grid">
+      <div class="card">
+        <h2>Register a client</h2>
+        <form id="client-form">
+          <label>Client ID <span class="hint">(blank = server generates one)</span></label>
+          <input type="text" id="c-clientId" placeholder="my-test-app" />
+
+          <label>Relying party ID <span class="hint">(blank = same as client ID)</span></label>
+          <input type="text" id="c-relyingPartyId" placeholder="my-test-app" />
+
+          <label>Redirect URIs <span class="hint">(one per line)</span></label>
+          <textarea id="c-redirectUris" rows="3" placeholder="http://localhost:3000/callback"></textarea>
+          <label class="hint" style="display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" id="c-useConsoleRedirect" style="width:auto;" />
+            Add this console's own URL as a redirect URI, so <b>Try the Flow</b> can complete the round trip
+          </label>
+
+          <h3>Signing key (used to verify <code>client_assertion</code> at the token endpoint)</h3>
+          <div class="flex-between">
+            <button type="button" class="secondary" id="c-generate-key">Generate RS256 keypair in browser</button>
+            <span class="hint" id="c-key-status">No key yet</span>
+          </div>
+          <label>Public JWK</label>
+          <textarea id="c-publicJwk" rows="4" placeholder='{"kty":"RSA","n":"...","e":"AQAB","kid":"...","use":"sig","alg":"RS256"}'></textarea>
+
+          <details class="danger-zone" id="c-private-zone" style="display:none;">
+            <summary>Private key (for signing client_assertion) &mdash; do not share</summary>
+            <p class="hint">Stored only in this browser's <code>localStorage</code>, never sent to the server. Used by <b>Try the Flow</b> to sign the token request automatically.</p>
+            <textarea id="c-privateJwk" rows="4" readonly></textarea>
+
+            <label>Private key (base64 - <code>PRIVATE_KEY_BASE64</code> format)</label>
+            <p class="hint">Same format printed by <code>generate-client-keys.mjs</code> - paste this into your own relying party app to sign <code>client_assertion</code> JWTs.</p>
+            <textarea id="c-privateKeyB64" rows="4" readonly></textarea>
+          </details>
+
+          <button type="submit" class="primary">Register client</button>
+        </form>
+        <div id="client-msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="flex-between"><h2>Registered clients</h2><button class="link" id="refresh-clients">Refresh</button></div>
+        <table id="clients-table">
+          <thead><tr><th>Client ID</th><th>Relying party</th><th>Redirect URIs</th><th>Key</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty" id="clients-empty">No clients registered yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-identities" class="tab">
+    <div class="grid">
+      <div class="card">
+        <h2>Create a fake citizen</h2>
+        <form id="identity-form">
+          <div class="row2">
+            <div>
+              <label>Individual ID <span class="hint">(blank = random)</span></label>
+              <input type="text" id="i-individualId" placeholder="1234567890123456" />
+            </div>
+            <div>
+              <label>PIN <span class="hint">(blank = 1234)</span></label>
+              <input type="text" id="i-pin" placeholder="1234" />
+            </div>
+          </div>
+          <div class="row2">
+            <div><label>Name (en)</label><input type="text" id="i-name-en" placeholder="Test User" /></div>
+            <div><label>Name (am)</label><input type="text" id="i-name-am" /></div>
+          </div>
+          <div class="row2">
+            <div><label>Email</label><input type="text" id="i-email" placeholder="test@example.com" /></div>
+            <div><label>Phone number</label><input type="text" id="i-phone" placeholder="+251900000000" /></div>
+          </div>
+          <div class="row2">
+            <div>
+              <label>Gender</label>
+              <select id="i-gender"><option></option><option>Male</option><option>Female</option></select>
+            </div>
+            <div><label>Birthdate</label><input type="date" id="i-birthdate" /></div>
+          </div>
+          <label>Picture URL</label>
+          <input type="text" id="i-picture" placeholder="https://placehold.co/150" />
+
+          <h3>Address</h3>
+          <div class="row2"><div><label>Region (en)</label><input type="text" id="i-region-en" /></div><div><label>Region (am)</label><input type="text" id="i-region-am" /></div></div>
+          <div class="row2"><div><label>Zone (en)</label><input type="text" id="i-zone-en" /></div><div><label>Zone (am)</label><input type="text" id="i-zone-am" /></div></div>
+          <div class="row2"><div><label>Woreda (en)</label><input type="text" id="i-woreda-en" /></div><div><label>Woreda (am)</label><input type="text" id="i-woreda-am" /></div></div>
+          <div class="row2"><div><label>Kebele (en)</label><input type="text" id="i-kebele-en" /></div><div><label>Kebele (am)</label><input type="text" id="i-kebele-am" /></div></div>
+
+          <button type="submit" class="primary">Create identity</button>
+        </form>
+        <div id="identity-msg"></div>
+      </div>
+
+      <div class="card">
+        <div class="flex-between"><h2>Identities</h2><button class="link" id="refresh-identities">Refresh</button></div>
+        <table id="identities-table">
+          <thead><tr><th>Name</th><th>Individual ID</th><th>PIN</th><th>Email</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty" id="identities-empty">No identities yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-flow" class="tab">
+    <div class="steps">
+      <div class="step" data-step="1">1. Choose client</div>
+      <div class="step" data-step="2">2. Request options</div>
+      <div class="step" data-step="3">3. Log in</div>
+      <div class="step" data-step="4">4. Exchange code</div>
+      <div class="step" data-step="5">5. Userinfo</div>
+    </div>
+
+    <div class="card" id="flow-step-1">
+      <h2>1. Choose a client</h2>
+      <label>Client</label>
+      <select id="f-client"></select>
+      <p class="hint" id="f-client-hint"></p>
+      <label>Redirect URI</label>
+      <select id="f-redirect"></select>
+      <button type="button" class="link" id="f-goto-clients">No clients yet &rarr; go register one</button>
+    </div>
+
+    <div class="card" id="flow-step-2">
+      <h2>2. Request options</h2>
+      <label>Scopes</label>
+      <div class="checks">
+        <label><input type="checkbox" checked disabled /> openid</label>
+        <label><input type="checkbox" id="f-scope-profile" checked /> profile</label>
+        <label><input type="checkbox" id="f-scope-email" checked /> email</label>
+        <label><input type="checkbox" id="f-scope-phone" /> phone (resident-service)</label>
+      </div>
+      <label>Claim locales</label>
+      <div class="checks">
+        <label><input type="checkbox" id="f-locale-en" checked /> en</label>
+        <label><input type="checkbox" id="f-locale-am" /> am</label>
+      </div>
+      <button type="button" class="primary" id="f-start">Generate PKCE &amp; start login &rarr;</button>
+      <div id="flow-start-msg"></div>
+    </div>
+
+    <div class="card" id="flow-step-3" style="display:none;">
+      <h2>3. Log in</h2>
+      <p>You were redirected back here with an authorization code:</p>
+      <p><code id="f-code" class="mono"></code></p>
+      <div id="f-state-check"></div>
+    </div>
+
+    <div class="card" id="flow-step-4" style="display:none;">
+      <h2>4. Exchange the code for tokens</h2>
+      <p class="hint">Signs a <code>client_assertion</code> JWT with the client's private key (from this browser's storage, or paste one below) and POSTs to <code>/oauth/v2/token</code>.</p>
+      <details id="f-manual-key-zone">
+        <summary class="hint" style="cursor:pointer;">No stored private key for this client &mdash; paste one</summary>
+        <textarea id="f-manual-key" rows="4" placeholder="Private JWK JSON, or the PRIVATE_KEY_BASE64 printed by generate-client-keys.mjs"></textarea>
+      </details>
+      <button type="button" class="primary" id="f-exchange">Exchange for tokens</button>
+      <div id="flow-exchange-msg"></div>
+      <div id="f-tokens" style="display:none;">
+        <h3>access_token</h3><pre id="f-access-token"></pre>
+        <h3>id_token (decoded)</h3><pre id="f-id-token"></pre>
+      </div>
+    </div>
+
+    <div class="card" id="flow-step-5" style="display:none;">
+      <h2>5. Fetch userinfo</h2>
+      <button type="button" class="primary" id="f-userinfo">Fetch /oidc/userinfo</button>
+      <div id="flow-userinfo-msg"></div>
+      <pre id="f-userinfo-result" style="display:none;"></pre>
+    </div>
+
+    <div class="card">
+      <button type="button" class="link" id="f-reset">Start over</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- tiny helpers ----------
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? "" : s); }
+
+  function b64urlFromBytes(bytes) {
+    var bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function bytesFromB64url(str) {
+    str = str.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) str += "=";
+    var bin = atob(str);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  function randomB64url(byteLen) {
+    var bytes = new Uint8Array(byteLen);
+    crypto.getRandomValues(bytes);
+    return b64urlFromBytes(bytes);
+  }
+  async function sha256B64url(text) {
+    var data = new TextEncoder().encode(text);
+    var digest = await crypto.subtle.digest("SHA-256", data);
+    return b64urlFromBytes(new Uint8Array(digest));
+  }
+  function decodeJwtPayload(jwt) {
+    var parts = jwt.split(".");
+    if (parts.length < 2) throw new Error("Not a JWT");
+    var json = new TextDecoder().decode(bytesFromB64url(parts[1]));
+    return JSON.parse(json);
+  }
+
+  async function api(method, url, body) {
+    var opts = { method: method, headers: {} };
+    if (body !== undefined) {
+      opts.headers["Content-Type"] = "application/json";
+      opts.body = JSON.stringify(body);
+    }
+    var res = await fetch(url, opts);
+    var text = await res.text();
+    var data;
+    try { data = text ? JSON.parse(text) : {}; } catch (e) { data = text; }
+    if (!res.ok) {
+      var err = new Error((data && data.error) ? data.error + ": " + (data.error_description || "") : "Request failed (" + res.status + ")");
+      err.body = data;
+      throw err;
+    }
+    return data;
+  }
+
+  function showMsg(el, ok, text) {
+    el.innerHTML = '<div class="msg ' + (ok ? "ok" : "err") + '">' + esc(text) + "</div>";
+  }
+
+  // ---------- tabs ----------
+
+  var tabs = document.querySelectorAll("nav button");
+  tabs.forEach(function (btn) {
+    btn.addEventListener("click", function () { activateTab(btn.dataset.tab); });
+  });
+  function activateTab(name) {
+    tabs.forEach(function (b) { b.classList.toggle("active", b.dataset.tab === name); });
+    document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("active", t.id === "tab-" + name); });
+  }
+
+  // ---------- Clients tab ----------
+
+  var generatedPrivateJwk = null;
+
+  function storedPrivateKeys() {
+    try { return JSON.parse(localStorage.getItem("fayda_mock_private_keys") || "{}"); } catch (e) { return {}; }
+  }
+  function storePrivateKey(clientId, privateJwk) {
+    var map = storedPrivateKeys();
+    map[clientId] = privateJwk;
+    localStorage.setItem("fayda_mock_private_keys", JSON.stringify(map));
+  }
+
+  $("c-useConsoleRedirect").addEventListener("change", function () {
+    if (this.checked) {
+      var ta = $("c-redirectUris");
+      var url = location.origin + "/#callback";
+      if (!ta.value.split("\n").map(function (s) { return s.trim(); }).includes(url)) {
+        ta.value = (ta.value.trim() ? ta.value.trim() + "\n" : "") + url;
+      }
+    }
+  });
+
+  $("c-generate-key").addEventListener("click", async function () {
+    $("c-key-status").textContent = "Generating...";
+    var pair = await crypto.subtle.generateKey(
+      { name: "RSASSA-PKCS1-v1_5", modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" },
+      true, ["sign", "verify"]
+    );
+    var pub = await crypto.subtle.exportKey("jwk", pair.publicKey);
+    var priv = await crypto.subtle.exportKey("jwk", pair.privateKey);
+    var kid = "mock-client-key-" + Date.now();
+    pub.use = "sig"; pub.alg = "RS256"; pub.kid = kid;
+    priv.use = "sig"; priv.alg = "RS256"; priv.kid = kid;
+    $("c-publicJwk").value = JSON.stringify(pub, null, 2);
+    generatedPrivateJwk = priv;
+    $("c-privateJwk").value = JSON.stringify(priv, null, 2);
+    $("c-privateKeyB64").value = btoa(JSON.stringify(priv));
+    $("c-private-zone").style.display = "block";
+    $("c-key-status").textContent = "Keypair generated ✓";
+  });
+
+  $("client-form").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    var clientId = $("c-clientId").value.trim();
+    var relyingPartyId = $("c-relyingPartyId").value.trim();
+    var redirectUris = $("c-redirectUris").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+    var publicJwkText = $("c-publicJwk").value.trim();
+    var body = { redirectUris: redirectUris };
+    if (clientId) body.clientId = clientId;
+    if (relyingPartyId) body.relyingPartyId = relyingPartyId;
+    if (publicJwkText) {
+      try { body.publicJwk = JSON.parse(publicJwkText); }
+      catch (e) { showMsg($("client-msg"), false, "Public JWK is not valid JSON."); return; }
+    }
+    try {
+      var res = await api("POST", "/admin/clients", body);
+      if (generatedPrivateJwk) {
+        storePrivateKey(res.clientId, generatedPrivateJwk);
+        generatedPrivateJwk = null;
+      }
+      showMsg($("client-msg"), true, "Registered client \"" + res.clientId + "\".");
+      $("client-form").reset();
+      $("c-private-zone").style.display = "none";
+      loadClients();
+    } catch (e) {
+      showMsg($("client-msg"), false, e.message);
+    }
+  });
+
+  async function loadClients() {
+    var clients;
+    try { clients = await api("GET", "/admin/clients"); } catch (e) { return; }
+    var ids = Object.keys(clients);
+    $("clients-empty").style.display = ids.length ? "none" : "block";
+    var tbody = $("clients-table").querySelector("tbody");
+    tbody.innerHTML = "";
+    ids.forEach(function (id) {
+      var c = clients[id];
+      var tr = document.createElement("tr");
+      var uris = (c.redirectUris || []).join("<br/>");
+      tr.innerHTML =
+        "<td class=\"mono\">" + esc(id) + "</td>" +
+        "<td class=\"mono\">" + esc(c.relyingPartyId) + "</td>" +
+        "<td class=\"mono\">" + uris + "</td>" +
+        "<td>" + (c.publicJwk ? "<span class=\"badge yes\">yes</span>" : "<span class=\"badge\">no</span>") + "</td>" +
+        "<td><button type=\"button\" class=\"link\" data-use=\"" + esc(id) + "\">use in flow</button></td>";
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll("[data-use]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        activateTab("flow");
+        populateFlowClients().then(function () { $("f-client").value = b.dataset.use; onFlowClientChange(); });
+      });
+    });
+    populateFlowClients();
+  }
+  $("refresh-clients").addEventListener("click", loadClients);
+
+  // ---------- Identities tab ----------
+
+  $("identity-form").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    function locale(en, am) {
+      var m = {};
+      if (en) m.en = en;
+      if (am) m.am = am;
+      return m;
+    }
+    var body = {
+      individualId: $("i-individualId").value.trim() || undefined,
+      pin: $("i-pin").value.trim() || undefined,
+      name: locale($("i-name-en").value.trim(), $("i-name-am").value.trim()),
+      email: $("i-email").value.trim() || undefined,
+      phoneNumber: $("i-phone").value.trim() || undefined,
+      gender: $("i-gender").value || undefined,
+      birthdate: $("i-birthdate").value || undefined,
+      picture: $("i-picture").value.trim() || undefined,
+      region: locale($("i-region-en").value.trim(), $("i-region-am").value.trim()),
+      zone: locale($("i-zone-en").value.trim(), $("i-zone-am").value.trim()),
+      woreda: locale($("i-woreda-en").value.trim(), $("i-woreda-am").value.trim()),
+      kebele: locale($("i-kebele-en").value.trim(), $("i-kebele-am").value.trim())
+    };
+    try {
+      var res = await api("POST", "/admin/identities", body);
+      showMsg($("identity-msg"), true, "Created identity " + res.individualId + " (PIN " + res.pin + ").");
+      $("identity-form").reset();
+      loadIdentities();
+    } catch (e) {
+      showMsg($("identity-msg"), false, e.message);
+    }
+  });
+
+  async function loadIdentities() {
+    var identities;
+    try { identities = await api("GET", "/admin/identities"); } catch (e) { return; }
+    var ids = Object.keys(identities);
+    $("identities-empty").style.display = ids.length ? "none" : "block";
+    var tbody = $("identities-table").querySelector("tbody");
+    tbody.innerHTML = "";
+    ids.forEach(function (id) {
+      var idt = identities[id];
+      var name = (idt.name && (idt.name.en || Object.values(idt.name)[0])) || "";
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td>" + esc(name) + "</td>" +
+        "<td class=\"mono\">" + esc(id) + "</td>" +
+        "<td class=\"mono\">" + esc(idt.pin) + "</td>" +
+        "<td>" + esc(idt.email || "") + "</td>";
+      tbody.appendChild(tr);
+    });
+  }
+  $("refresh-identities").addEventListener("click", loadIdentities);
+
+  // ---------- Try the Flow tab ----------
+
+  $("f-goto-clients").addEventListener("click", function () { activateTab("clients"); });
+
+  async function populateFlowClients() {
+    var clients;
+    try { clients = await api("GET", "/admin/clients"); } catch (e) { clients = {}; }
+    var sel = $("f-client");
+    var prev = sel.value;
+    sel.innerHTML = "";
+    var ids = Object.keys(clients);
+    if (!ids.length) {
+      $("f-client-hint").textContent = "No clients registered yet.";
+      $("f-goto-clients").style.display = "block";
+      $("f-redirect").innerHTML = "";
+      return;
+    }
+    $("f-goto-clients").style.display = "none";
+    ids.forEach(function (id) {
+      var c = clients[id];
+      var opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = id + (c.publicJwk ? "" : "  (no public key set)");
+      sel.appendChild(opt);
+    });
+    window.__flowClients = clients;
+    if (ids.includes(prev)) sel.value = prev;
+    onFlowClientChange();
+  }
+  function onFlowClientChange() {
+    var clients = window.__flowClients || {};
+    var c = clients[$("f-client").value];
+    var redirectSel = $("f-redirect");
+    redirectSel.innerHTML = "";
+    if (!c) return;
+    $("f-client-hint").textContent = c.publicJwk
+      ? "This client has a public key registered."
+      : "This client has no public key - the token exchange step will fail unless you generate/paste one.";
+    (c.redirectUris || []).forEach(function (uri) {
+      var opt = document.createElement("option");
+      opt.value = uri; opt.textContent = uri;
+      redirectSel.appendChild(opt);
+    });
+    var consoleUrl = location.origin + "/#callback";
+    if ((c.redirectUris || []).includes(consoleUrl)) redirectSel.value = consoleUrl;
+  }
+  $("f-client").addEventListener("change", onFlowClientChange);
+
+  $("f-start").addEventListener("click", async function () {
+    var clientId = $("f-client").value;
+    var redirectUri = $("f-redirect").value;
+    if (!clientId || !redirectUri) { showMsg($("flow-start-msg"), false, "Choose a client and redirect URI first."); return; }
+
+    var codeVerifier = randomB64url(48);
+    var codeChallenge = await sha256B64url(codeVerifier);
+    var state = randomB64url(12);
+    var nonce = randomB64url(12);
+
+    var scopes = ["openid"];
+    if ($("f-scope-profile").checked) scopes.push("profile");
+    if ($("f-scope-email").checked) scopes.push("email");
+    if ($("f-scope-phone").checked) scopes.push("resident-service");
+    var locales = [];
+    if ($("f-locale-en").checked) locales.push("en");
+    if ($("f-locale-am").checked) locales.push("am");
+
+    sessionStorage.setItem("fayda_mock_flow", JSON.stringify({
+      clientId: clientId, redirectUri: redirectUri, codeVerifier: codeVerifier, state: state, nonce: nonce
+    }));
+
+    var qs = new URLSearchParams({
+      response_type: "code",
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: scopes.join(" "),
+      state: state,
+      nonce: nonce,
+      code_challenge: codeChallenge,
+      code_challenge_method: "S256"
+    });
+    if (locales.length) qs.set("claims_locales", locales.join(" "));
+
+    location.href = "/authorize?" + qs.toString();
+  });
+
+  function setStep(n) {
+    document.querySelectorAll(".step").forEach(function (el) {
+      var s = Number(el.dataset.step);
+      el.classList.toggle("active", s === n);
+      el.classList.toggle("done", s < n);
+    });
+    $("flow-step-3").style.display = n >= 3 ? "block" : "none";
+    $("flow-step-4").style.display = n >= 4 ? "block" : "none";
+    $("flow-step-5").style.display = n >= 5 ? "block" : "none";
+  }
+
+  var flow = null;
+
+  function checkForCallback() {
+    var hash = location.hash || "";
+    if (!hash.startsWith("#callback")) return;
+    var qIndex = hash.indexOf("?");
+    var params = new URLSearchParams(qIndex >= 0 ? hash.slice(qIndex + 1) : "");
+    var saved = sessionStorage.getItem("fayda_mock_flow");
+    if (!saved) return;
+    flow = JSON.parse(saved);
+
+    if (params.get("error")) {
+      activateTab("flow");
+      setStep(3);
+      showMsg($("f-state-check"), false, params.get("error") + ": " + (params.get("error_description") || ""));
+      return;
+    }
+    var code = params.get("code");
+    if (!code) return;
+    if (params.get("state") !== flow.state) {
+      activateTab("flow");
+      setStep(3);
+      showMsg($("f-state-check"), false, "state parameter mismatch - possible CSRF or stale flow, start over.");
+      return;
+    }
+    flow.code = code;
+    activateTab("flow");
+    $("f-code").textContent = code;
+    setStep(4);
+
+    var stored = storedPrivateKeys()[flow.clientId];
+    $("f-manual-key-zone").open = !stored;
+    $("f-manual-key-zone").style.display = stored ? "none" : "block";
+  }
+
+  function parsePrivateKeyInput(text) {
+    text = text.trim();
+    try { return JSON.parse(text); } catch (e) {}
+    try { return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(text), function (c) { return c.charCodeAt(0); }))); } catch (e) {}
+    throw new Error("Could not parse private key - expected JWK JSON or the base64 blob from generate-client-keys.mjs");
+  }
+
+  async function signClientAssertion(clientId, privateJwk, audience) {
+    var key = await crypto.subtle.importKey(
+      "jwk", privateJwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]
+    );
+    var header = { alg: "RS256", typ: "JWT" };
+    if (privateJwk.kid) header.kid = privateJwk.kid;
+    var now = Math.floor(Date.now() / 1000);
+    var payload = { iss: clientId, sub: clientId, aud: audience, iat: now, exp: now + 300, jti: randomB64url(12) };
+    var signingInput = b64urlFromBytes(new TextEncoder().encode(JSON.stringify(header))) + "." +
+                        b64urlFromBytes(new TextEncoder().encode(JSON.stringify(payload)));
+    var sig = await crypto.subtle.sign({ name: "RSASSA-PKCS1-v1_5" }, key, new TextEncoder().encode(signingInput));
+    return signingInput + "." + b64urlFromBytes(new Uint8Array(sig));
+  }
+
+  $("f-exchange").addEventListener("click", async function () {
+    if (!flow || !flow.code) { showMsg($("flow-exchange-msg"), false, "No authorization code yet."); return; }
+    var privateJwk = storedPrivateKeys()[flow.clientId];
+    if (!privateJwk) {
+      var manual = $("f-manual-key").value.trim();
+      if (!manual) { showMsg($("flow-exchange-msg"), false, "Paste a private key for this client first."); return; }
+      try { privateJwk = parsePrivateKeyInput(manual); }
+      catch (e) { showMsg($("flow-exchange-msg"), false, e.message); return; }
+    }
+    try {
+      var audience = location.origin + "/oauth/v2/token";
+      var assertion = await signClientAssertion(flow.clientId, privateJwk, audience);
+      var body = new URLSearchParams({
+        grant_type: "authorization_code",
+        code: flow.code,
+        redirect_uri: flow.redirectUri,
+        client_id: flow.clientId,
+        client_assertion: assertion,
+        client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        code_verifier: flow.codeVerifier
+      });
+      var res = await fetch("/oauth/v2/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body });
+      var data = await res.json();
+      if (!res.ok) throw new Error((data.error || "error") + ": " + (data.error_description || ""));
+
+      flow.accessToken = data.access_token;
+      showMsg($("flow-exchange-msg"), true, "Tokens received.");
+      $("f-tokens").style.display = "block";
+      $("f-access-token").textContent = data.access_token;
+      $("f-id-token").textContent = JSON.stringify(decodeJwtPayload(data.id_token), null, 2);
+      setStep(5);
+    } catch (e) {
+      showMsg($("flow-exchange-msg"), false, e.message);
+    }
+  });
+
+  $("f-userinfo").addEventListener("click", async function () {
+    if (!flow || !flow.accessToken) { showMsg($("flow-userinfo-msg"), false, "Exchange for tokens first."); return; }
+    try {
+      var res = await fetch("/oidc/userinfo", { headers: { Authorization: "Bearer " + flow.accessToken } });
+      var text = await res.text();
+      if (!res.ok) throw new Error("userinfo request failed (" + res.status + "): " + text);
+      $("f-userinfo-result").style.display = "block";
+      $("f-userinfo-result").textContent = JSON.stringify(decodeJwtPayload(text), null, 2);
+      showMsg($("flow-userinfo-msg"), true, "Claims retrieved.");
+    } catch (e) {
+      showMsg($("flow-userinfo-msg"), false, e.message);
+    }
+  });
+
+  $("f-reset").addEventListener("click", function () {
+    sessionStorage.removeItem("fayda_mock_flow");
+    flow = null;
+    history.replaceState(null, "", location.pathname);
+    setStep(2);
+    $("f-tokens").style.display = "none";
+    $("f-userinfo-result").style.display = "none";
+    $("flow-start-msg").innerHTML = "";
+    $("flow-exchange-msg").innerHTML = "";
+    $("flow-userinfo-msg").innerHTML = "";
+  });
+
+  // ---------- init ----------
+
+  loadClients();
+  loadIdentities();
+  populateFlowClients();
+  setStep(1);
+  checkForCallback();
+})();
+</script>
+
+</body>
+</html>

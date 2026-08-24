@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>et.fayda</groupId>
+    <artifactId>fayda-mock-esignet-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>fayda-mock-esignet-parent</name>
+    <description>
+        Aggregator for the Fayda / VeriFayda 2.0 eSignet mock ecosystem: a mock
+        eSignet OIDC server (mock_server) and a sample relying-party app that
+        authenticates against it (sample_rp). Each module keeps its own
+        independent Spring Boot parent/version - this POM only wires them
+        together as a reactor, it does not unify their dependency management.
+    </description>
+
+    <modules>
+        <module>mock_server</module>
+        <module>sample_rp</module>
+    </modules>
+</project>
